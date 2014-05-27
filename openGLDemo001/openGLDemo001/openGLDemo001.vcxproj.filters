@@ -13,10 +13,24 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="vertexShader">
+      <UniqueIdentifier>{7abfc3be-c164-48d7-b94d-d364fb8f15d4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="fragmentShader">
+      <UniqueIdentifier>{74811feb-318b-4bae-a2e0-51fc181e0585}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="vertexShader001.txt">
+      <Filter>vertexShader</Filter>
+    </None>
+    <None Include="fragment001.txt">
+      <Filter>fragmentShader</Filter>
+    </None>
   </ItemGroup>
 </Project>
