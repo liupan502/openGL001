@@ -4,15 +4,28 @@
 #include <fstream>
 #include <sys/stat.h>
 #include <atlstr.h>
+#include "glm/glm.hpp"
+#include <glm/gtc/matrix_transform.hpp>
+
 using namespace std;
+using glm::mat4;
+using glm::vec3;
 
 GLuint vaoHandle;
-
+GLuint programHandle;
 char* CreateShader(const char* shaderName);
 
 void Render()
 {
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+	mat4 rotationMatrix = glm::rotate(mat4(1.0f),30.0f,vec3(0.0f,0.0f,1.0f));
+	GLuint location = glGetUniformLocation(programHandle,"rotationMatrix");
+	
+
+	if(location >= 0)
+	{
+		glUniformMatrix4fv(location,1,GL_FALSE,&rotationMatrix[0][0]);
+	}
 	glBindVertexArray(vaoHandle);
 	glDrawArrays(GL_TRIANGLES,0,3);
 	glutSwapBuffers();	
@@ -111,7 +124,7 @@ int main(int count, char* arpp[])
 	}
 
 	// create program
-	GLuint programHandle = glCreateProgram();
+	 programHandle = glCreateProgram();
 	if(0 == programHandle)
 	{
 		cout << "create program failed" << endl;
@@ -119,27 +132,7 @@ int main(int count, char* arpp[])
 	}
 	glAttachShader(programHandle,vertexShader);
 	glAttachShader(programHandle,fragmentShader);
-	glLinkProgram(programHandle);
-	GLint status;
-	glGetProgramiv(programHandle,GL_LINK_STATUS,&status);
-	if(GL_FALSE == status)
-	{
-		cout << "link program failed" << endl;
-		GLint logLen;
-		glGetProgramiv(programHandle,GL_INFO_LOG_LENGTH,&logLen);
-		if(logLen > 0)
-		{
-			char* log = (char*) malloc(sizeof(char)*logLen);
-			GLsizei written;
-			glGetProgramInfoLog(programHandle,logLen,&written,log);
-			cout << log << endl;
-			free(log);
-		}
-	}
-	else
-	{
-		glUseProgram(programHandle);
-	}
+	
 
 	// send data to shaders
 	glBindAttribLocation(programHandle,0,"VertexPosition");
@@ -180,6 +173,28 @@ int main(int count, char* arpp[])
 
 	glBindBuffer(GL_ARRAY_BUFFER,colorBufferHandle);
 	glVertexAttribPointer(1,3,GL_FLOAT,GL_FALSE,0,(GLubyte*)NULL);
+
+	glLinkProgram(programHandle);
+	GLint status;
+	glGetProgramiv(programHandle,GL_LINK_STATUS,&status);
+	if(GL_FALSE == status)
+	{
+		cout << "link program failed" << endl;
+		GLint logLen;
+		glGetProgramiv(programHandle,GL_INFO_LOG_LENGTH,&logLen);
+		if(logLen > 0)
+		{
+			char* log = (char*) malloc(sizeof(char)*logLen);
+			GLsizei written;
+			glGetProgramInfoLog(programHandle,logLen,&written,log);
+			cout << log << endl;
+			free(log);
+		}
+	}
+	else
+	{
+		glUseProgram(programHandle);
+	}
 
 	glutDisplayFunc(Render);
 	glutReshapeFunc(Resize);
