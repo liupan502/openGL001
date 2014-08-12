@@ -2,6 +2,6 @@ Debug/
 Release/
 *.sdf
 *.sln
-*.txt
+
 *.suo
 ipch/
