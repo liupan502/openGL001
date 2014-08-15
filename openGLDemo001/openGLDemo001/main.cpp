@@ -19,25 +19,87 @@
 #include "Program.h"
 
 using namespace std;
+using namespace glm;
 using glm::mat4;
 using glm::vec3;
+using glm::mat3;
 
 GLuint vaoHandle;
 GLuint faceNum = 0;
 Program program;
 mat4 mvp;
+mat4 modelViewMatrix;
+mat4 projectionMatrix;
 char* CreateShader(const char* shaderName);
 const char* vertexShaderPath = "vertexShader001.txt";
 const char* fragmentShaderPath = "fragment001.txt";
 
+vec4 lightPosition(-100.0f,0.0f,-200.0f,1.0f);
+vec3 Kd(0.2f,0.3f,0.5f);
+vec3 Ld(1.0f,0.5f,0.25f);
 string  modelFilePath = "..\\sphere\\sphere.3DS";
 
+void CheckActiveUniforms()
+{
+	GLint nUniforms,maxLen;
+	glGetProgramiv(program.GetIndex(),GL_ACTIVE_UNIFORM_MAX_LENGTH,&maxLen);
+	glGetProgramiv(program.GetIndex(),GL_ACTIVE_UNIFORMS,&nUniforms);
+	GLchar* name = (GLchar*) malloc(maxLen);
+	GLint size,location;
+	GLsizei written;
+	GLenum type;
+	cout << "Location | Name \n";
+	for(int i = 0;i<nUniforms;++i)
+	{
+		glGetActiveUniform(program.GetIndex(),i,maxLen,&written,&size,&type,name);
+		location = glGetUniformLocation(program.GetIndex(),name);
+		printf("%-8d | %s\n",location,name);
+	}
+
+}
+void CheckUniformLocation(GLuint location)
+{
+	switch((int)location)
+	{
+	case GL_INVALID_VALUE :
+		cout << "INVALID_VALUE" << endl; break;
+	case GL_INVALID_OPERATION:
+		cout << "INVALID_OPERATION" << endl;break;
+	default: cout << "valid location" << endl; break;
+	}
+}
 void Render()
 {
+	//CheckActiveUniforms();
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+	mat3 normalMatrix(transpose(modelViewMatrix._inverse()));	
+	GLuint locationNormalMatrix = glGetUniformLocation(program.GetIndex(),"NormalMatrix");
+	CheckUniformLocation(locationNormalMatrix);
+	glUniformMatrix3fv(locationNormalMatrix,1,GL_FALSE,&normalMatrix[0][0]);
 
+	GLuint locationModelViewMatrix = glGetUniformLocation(program.GetIndex(),"ModelViewMatrix");
+	CheckUniformLocation(locationModelViewMatrix);
+	glUniformMatrix4fv(locationModelViewMatrix,1,GL_FALSE,&modelViewMatrix[0][0]);
+
+	GLuint locationProjectinMatrix = glGetUniformLocation(program.GetIndex(),"ProjectionMatrix");
+	CheckUniformLocation(locationProjectinMatrix);
+	glUniformMatrix4fv(locationProjectinMatrix,1,GL_FALSE,&projectionMatrix[0][0]);
+	
 	GLuint location = glGetUniformLocation(program.GetIndex(),"MVP");
+	CheckUniformLocation(location);
 	glUniformMatrix4fv(location,1,GL_FALSE,&mvp[0][0]);
+
+	GLuint locationLightPosition = glGetUniformLocation(program.GetIndex(),"LightPosition");
+	CheckUniformLocation(locationLightPosition);
+	glUniform4fv(locationLightPosition,1,&lightPosition[0]);
+
+	GLuint locationKd = glGetUniformLocation(program.GetIndex(),"Kd");
+	CheckUniformLocation(locationKd);
+	glUniform3fv(locationKd,1,&Kd[0]);
+
+	GLuint locationLd = glGetUniformLocation(program.GetIndex(),"Ld");
+	CheckUniformLocation(locationLd);
+	glUniform3fv(locationLd,1,&Ld[0]);
 
 	glBindVertexArray(vaoHandle);
 	glDrawArrays(GL_TRIANGLES,0,faceNum*10);
@@ -59,17 +121,14 @@ int main(int count, char* arpp[])
 																	aiProcess_JoinIdenticalVertices  |        
 																	aiProcess_SortByPType);
 
-	mat4 perspectiveMat = glm::perspective(60.0f,1.0f,0.1f,500.0f);
-	//mat4 perspectiveMat = glm::frustum(60.0f,1.0f,0.1f,500.0f);
-	//ma4 tmpMat = glm::loo
-	mat4 modelRoateMat = glm::rotate(270.0f,0.0f,1.0f,0.0f);
-	mat4 camTranslationMat = glm::translate(glm::vec3(0.0f,0.0f,-100));
-	mat4 roate = glm::rotate(30.0f,0.0f,0.0f,1.0f);
-	mvp = perspectiveMat*camTranslationMat*modelRoateMat;
-    //mvp = roate;
+    projectionMatrix = glm::perspective(60.0f,1.0f,0.1f,500.0f);
+	mat4 modelRoateMat = glm::rotate(0.0f,0.0f,1.0f,0.0f);
+	mat4 camTranslationMat = glm::translate(glm::vec3(0.0f,0.0f,-200));
+	modelViewMatrix = camTranslationMat*modelRoateMat;	
+	mvp = projectionMatrix*modelViewMatrix;   
 	glutInit(&count, arpp);
 	
-	glutInitWindowSize(300,300);
+	glutInitWindowSize(500,500);
 	glutInitDisplayMode(GLUT_SINGLE|GLUT_RGB);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_ALPHA | GLUT_DEPTH | GLUT_STENCIL);
 	
@@ -88,15 +147,7 @@ int main(int count, char* arpp[])
 	 {
 		 aiFace face = pMesh->mFaces[faceIndex];
 		 int vertexNum = face.mNumIndices;
-		 /*vertexBuffer[floatValueNum++] = -0.8f; 
-		 vertexBuffer[floatValueNum++] = -0.8f; 
-		 vertexBuffer[floatValueNum++] = 0; 	
-		  vertexBuffer[floatValueNum++] = 0.8f; 
-		 vertexBuffer[floatValueNum++] = -0.8f; 
-		 vertexBuffer[floatValueNum++] = 0; 	
-		  vertexBuffer[floatValueNum++] = 0.0f; 
-		 vertexBuffer[floatValueNum++] = 0.8f; 
-		 vertexBuffer[floatValueNum++] = 0; 	*/
+		
 		 for(int vertexMidIndex = vertexNum-1;vertexMidIndex>=0;vertexMidIndex--)
 		 {
 			 int vertexIndex = face.mIndices[vertexMidIndex];
@@ -109,12 +160,9 @@ int main(int count, char* arpp[])
 			 if(vertex.Length() > 50.5)
 			 {
 				cout << vertex.x << "  " << vertex.y << "  " << vertex.z << endl;
-			 }
-			 //vertexBuffer[floatValueNum++] = 0.0f;//vertex.0; 		
+			 }			
 		 }
 	 }
-
-	 
 	
 	Shader vertexShader,fragmentShader;
 	string errorInfo;
@@ -141,13 +189,10 @@ int main(int count, char* arpp[])
 	program.AttachShader(vertexShader);
 	program.AttachShader(fragmentShader);
 	// send data to shaders
-	glBindAttribLocation(program.GetIndex(),0,"VertexPosition");
-	//glBindAttribLocation(programHandle,1,"VertexColor");
+	glBindAttribLocation(program.GetIndex(),0,"VertexPosition");	
 
 	GLuint vboHandles[2];
-	glGenBuffers(2,vboHandles);
-	//GLuint positionBufferHandle = vboHandles[0];
-	//GLuint colorBufferHandle = vboHandles[1];
+	glGenBuffers(2,vboHandles);	
 	GLuint pointBufferIndex = 0;
 	 glGenBuffers(1,&pointBufferIndex);
 	 glBindBuffer(GL_ARRAY_BUFFER,pointBufferIndex);
@@ -157,41 +202,21 @@ int main(int count, char* arpp[])
 	glBindVertexArray(vaoHandle);
 
 	glEnableVertexAttribArray(0);
-	//glEnableVertexAttribArray(1);
+	
 
 	glBindBuffer(GL_ARRAY_BUFFER,pointBufferIndex);
 	glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,0,(GLubyte*)NULL);
 
-	//glBindBuffer(GL_ARRAY_BUFFER,colorBufferHandle);
-	//glVertexAttribPointer(1,3,GL_FLOAT,GL_FALSE,0,(GLubyte*)NULL);	
 	glLinkProgram(program.GetIndex());
 	glUseProgram(program.GetIndex());
-	/*GLint status;
-	glGetProgramiv(programHandle,GL_LINK_STATUS,&status);
-	if(GL_FALSE == status)
-	{
-		cout << "link program failed" << endl;
-		GLint logLen;
-		glGetProgramiv(programHandle,GL_INFO_LOG_LENGTH,&logLen);
-		if(logLen > 0)
-		{
-			char* log = (char*) malloc(sizeof(char)*logLen);
-			GLsizei written;
-			glGetProgramInfoLog(programHandle,logLen,&written,log);
-			cout << log << endl;
-			free(log);
-		}
-	}
-	else
-	{		
-		glUseProgram(programHandle);
-	}*/
+	
 	
 	glutDisplayFunc(Render);
 	glutReshapeFunc(Resize);
 
 	glutMainLoop();
-
+	delete vertexBuffer;
+	vertexBuffer = NULL;
 	getchar();
 }
 
