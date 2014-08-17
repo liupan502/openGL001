@@ -74,8 +74,10 @@
     <None Include="vertexShader001.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Camera.h" />
     <ClInclude Include="glm.h" />
     <ClInclude Include="Program.h" />
+    <ClInclude Include="RenderObject.h" />
     <ClInclude Include="Shader.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
