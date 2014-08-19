@@ -1,16 +1,13 @@
 
 #include <GL/glew.h>
 #include <GL/glut.h>
-#include "glm.h"
+//#include "glm.h"
 #include <iostream>
 #include <fstream>
 #include <sys/stat.h>
 #include <string>
 #include <atlstr.h>
-#include "glm/glm.hpp"
-#include "glm/ext.hpp"
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/swizzle.hpp>
+#include "RenderObject.h"
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>          
 #include <assimp/postprocess.h>  
@@ -19,10 +16,7 @@
 #include "Program.h"
 
 using namespace std;
-using namespace glm;
-using glm::mat4;
-using glm::vec3;
-using glm::mat3;
+
 
 GLuint vaoHandle;
 GLuint faceNum = 0;
@@ -68,37 +62,38 @@ void CheckUniformLocation(GLuint location)
 	default: cout << "valid location" << endl; break;
 	}
 }
+
 void Render()
 {
 	//CheckActiveUniforms();
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-	mat3 normalMatrix(transpose(modelViewMatrix._inverse()));	
+	mat3 normalMatrix(glm::transpose(modelViewMatrix._inverse()));	
 	GLuint locationNormalMatrix = glGetUniformLocation(program.GetIndex(),"NormalMatrix");
-	CheckUniformLocation(locationNormalMatrix);
+	
 	glUniformMatrix3fv(locationNormalMatrix,1,GL_FALSE,&normalMatrix[0][0]);
 
 	GLuint locationModelViewMatrix = glGetUniformLocation(program.GetIndex(),"ModelViewMatrix");
-	CheckUniformLocation(locationModelViewMatrix);
+	
 	glUniformMatrix4fv(locationModelViewMatrix,1,GL_FALSE,&modelViewMatrix[0][0]);
 
 	GLuint locationProjectinMatrix = glGetUniformLocation(program.GetIndex(),"ProjectionMatrix");
-	CheckUniformLocation(locationProjectinMatrix);
+	
 	glUniformMatrix4fv(locationProjectinMatrix,1,GL_FALSE,&projectionMatrix[0][0]);
 	
 	GLuint location = glGetUniformLocation(program.GetIndex(),"MVP");
-	CheckUniformLocation(location);
+	
 	glUniformMatrix4fv(location,1,GL_FALSE,&mvp[0][0]);
 
 	GLuint locationLightPosition = glGetUniformLocation(program.GetIndex(),"LightPosition");
-	CheckUniformLocation(locationLightPosition);
+	
 	glUniform4fv(locationLightPosition,1,&lightPosition[0]);
 
 	GLuint locationKd = glGetUniformLocation(program.GetIndex(),"Kd");
-	CheckUniformLocation(locationKd);
+	
 	glUniform3fv(locationKd,1,&Kd[0]);
 
 	GLuint locationLd = glGetUniformLocation(program.GetIndex(),"Ld");
-	CheckUniformLocation(locationLd);
+	
 	glUniform3fv(locationLd,1,&Ld[0]);
 
 	glBindVertexArray(vaoHandle);

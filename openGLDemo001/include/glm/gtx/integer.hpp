@@ -65,7 +65,7 @@ namespace glm
 
 	//! Returns the floor log2 of x.
 	//! From GLM_GTX_integer extension.
-	unsigned int floor_log2(unsigned int x);
+	inline unsigned int floor_log2(unsigned int x);
 
 	//! Modulus. Returns x - y * floor(x / y) for each component in x using the floating point value y.
 	//! From GLM_GTX_integer extension.

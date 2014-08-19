@@ -33,6 +33,15 @@
     <ClCompile Include="Program.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="RenderObject.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="vertexShader001.txt">
@@ -52,10 +61,16 @@
     <ClInclude Include="Program.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Camera.h">
+    <ClInclude Include="RenderBaseObject.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="RenderObject.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
