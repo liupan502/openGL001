@@ -29,8 +29,13 @@ const char* vertexShaderPath = "vertexShader001.txt";
 const char* fragmentShaderPath = "fragment001.txt";
 
 vec4 lightPosition(-100.0f,0.0f,-200.0f,1.0f);
-vec3 Kd(0.2f,0.3f,0.5f);
+vec3 Ka(0.2f,0.3f,0.6f);
+vec3 Kd(0.5f,0.5f,0.5f);
+vec3 Ks(0.3f,0.4f,0.3f);
+vec3 La(0.2f,0.5f,0.3f);
 vec3 Ld(1.0f,0.5f,0.25f);
+vec3 Ls(0.5f,0.4f,0.3f);
+float Shininess = 5.0f;
 string  modelFilePath = "..\\sphere\\sphere.3DS";
 
 void CheckActiveUniforms()
@@ -84,17 +89,29 @@ void Render()
 	
 	glUniformMatrix4fv(location,1,GL_FALSE,&mvp[0][0]);
 
-	GLuint locationLightPosition = glGetUniformLocation(program.GetIndex(),"LightPosition");
-	
-	glUniform4fv(locationLightPosition,1,&lightPosition[0]);
+	 location = glGetUniformLocation(program.GetIndex(),"Light.Position");
+	glUniform4fv(location,1,&lightPosition[0]);
 
-	GLuint locationKd = glGetUniformLocation(program.GetIndex(),"Kd");
-	
-	glUniform3fv(locationKd,1,&Kd[0]);
+	 location = glGetUniformLocation(program.GetIndex(),"Light.La");
+	glUniform3fv(location,1,&La[0]);
 
-	GLuint locationLd = glGetUniformLocation(program.GetIndex(),"Ld");
-	
-	glUniform3fv(locationLd,1,&Ld[0]);
+	 location = glGetUniformLocation(program.GetIndex(),"Light.Ld");
+	glUniform3fv(location,1,&Ld[0]);
+
+	 location = glGetUniformLocation(program.GetIndex(),"Light.Ls");
+	glUniform3fv(location,1,&Ls[0]);
+
+	 location = glGetUniformLocation(program.GetIndex(),"Material.Ka");
+	glUniform3fv(location,1,&Ka[0]);
+
+	 location = glGetUniformLocation(program.GetIndex(),"Material.Kd");
+	glUniform3fv(location,1,&Kd[0]);
+
+	 location = glGetUniformLocation(program.GetIndex(),"Material.Ks");
+	glUniform3fv(location,1,&Ks[0]);
+
+	 location = glGetUniformLocation(program.GetIndex(),"Material.Shininess");
+	glUniform1f(location,Shininess);
 
 	glBindVertexArray(vaoHandle);
 	glDrawArrays(GL_TRIANGLES,0,faceNum*10);
@@ -125,11 +142,12 @@ int main(int count, char* arpp[])
 	
 	glutInitWindowSize(500,500);
 	glutInitDisplayMode(GLUT_SINGLE|GLUT_RGB);
-	glutInitDisplayMode(GLUT_DOUBLE | GLUT_ALPHA | GLUT_DEPTH | GLUT_STENCIL);
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_ALPHA | GLUT_DEPTH | GLUT_STENCIL|GLUT_MULTISAMPLE);
 	
 	glutCreateWindow("test");
 	glClearColor(0.0f,1.0f,0.0f,1.0f);
 	glewInit();	
+	glEnable(GL_MULTISAMPLE);
 
 	glCullFace(GL_BACK);
 	glEnable(GL_CULL_FACE);
@@ -197,8 +215,6 @@ int main(int count, char* arpp[])
 	glBindVertexArray(vaoHandle);
 
 	glEnableVertexAttribArray(0);
-	
-
 	glBindBuffer(GL_ARRAY_BUFFER,pointBufferIndex);
 	glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,0,(GLubyte*)NULL);
 
